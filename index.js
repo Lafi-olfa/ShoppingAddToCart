@@ -1,24 +1,21 @@
-const openShopping = document.querySelector('.shopping');
-const closeShopping = document.querySelector('.close-shopping');
-const shopping= document.querySelector('.shopping');
-const checkoutCart = document.querySelector('.checkout');
-const card = document.querySelector('.card');
-const list = document.querySelector('.list');
+let openShopping = document.querySelector('.shopping');
+let closeShopping = document.querySelector('.close-shopping');
+let body = document.querySelector('body')
+let list = document.querySelector('.list');
+let listCard = document.querySelector('.listCard');
+let total = document.querySelector('.total');
+let quantity = document.querySelector('.quantity');
+
 
 openShopping.addEventListener('click', ()=>{
-    shopping.classList.add('active');
-})
-openShopping.addEventListener('click', ()=>{
-    card.classList.add('active');
+    body.classList.add('active');
 })
 
 closeShopping.addEventListener('click', ()=>{
-    shopping.classList.remove('active');
+    body.classList.remove('active');
 })
 
-closeShopping.addEventListener('click', ()=>{
-    card.classList.remove('active');
-})
+
 let products =[
         {  
         id:1,
@@ -64,20 +61,59 @@ let products =[
 
 let listCards=[];
     function initApp(){
-        products.forEach((key, value)=>{
-            const newDiv= document.createElement('div');
+        products.forEach((value, key)=>{
+            const newDiv = document.createElement('div');
             newDiv.classList.add('item');
-           
             newDiv.innerHTML= `
-            <img src="${key.image}"/>
-            <div class="name"> ${key.name}</div>
-            <div class="price"> ${key.price}</div>
-            <button onClick="addToCart(${key}))"> Add to cart</button>
+            <img src="${value.image}"/>
+            <div class="name"> ${value.name}</div>
+            <div class="price"> ${value.price.toLocaleString()}</div>
+            <button onclick="addToCart(${key})"> Add to card</button>
             `
             list.appendChild(newDiv)
         })
-
     };
 initApp();
 
-
+function addToCart(key){
+    if(listCards[key] == null){
+        listCards[key] = JSON.parse(JSON.stringify(products[key]));
+        listCards[key].quantity = 1;
+    }
+    reloadCard()
+}
+ function reloadCard(){
+    listCard.innerHTML = '';
+    let count = 0;
+    let totolPrice = 0;
+    listCards.forEach((value, key)=>{
+        totolPrice = totolPrice + value.price;
+        count = count + value.quantity;
+        if(value != null){
+            let newDiv= document.createElement('li');
+            newDiv.innerHTML= `
+            <img src="/${value.image}" />
+            <div class="name">${value.name} </div>
+            <div class="price">${value.price.toLocaleString()}</div>
+            <div>
+                <button onclick="changeQuantity(${key}, ${value.quantity - 1})">-</button>
+                <button class="count">${value.quantity}</button>
+                <button onclick="changeQuantity(${key}, ${value.quantity + 1})">+</button>
+            </div>
+            `;
+            listCard.appendChild(newDiv);
+        }
+    })
+    total.innerText= totolPrice.toLocaleString()
+    quantity.innerText= count;
+}
+function changeQuantity(key, quantity){
+      if(quantity ==0){
+        delete listCards[key];
+    } else {
+        listCards[key].quantity =quantity;
+        listCards[key].price =quantity * products[key].price
+  
+    }
+    reloadCard()
+}
